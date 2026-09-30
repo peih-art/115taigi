@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>臺灣台語・每週一句發音自主挑戰台</title>
+  <!-- 示範音檔放在 audio/ 資料夾，檔名為題庫 id，例如 audio/g3_1.mp3 -->
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tone.js for kid-friendly procedural sound effects -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <!-- FontAwesome for clean icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Zen Maru Gothic & Noto Sans TC for friendly typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chango&family=Noto+Sans+TC:wght@400;600;700;900&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              cream: '#FEF9EF',
+              yellow: '#FFC83B',
+              orange: '#FF8A3D',
+              green: '#2EC4B6',
+              darkgreen: '#1B998B',
+              navy: '#223843',
+              purple: '#795290',
+              pink: '#FF6B8B'
+            }
+          },
+          fontFamily: {
+            sans: ['"Noto Sans TC"', 'sans-serif'],
+            display: ['"Zen Maru Gothic"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #FEF9EF;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .font-maru {
+      font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+    }
+    .custom-shadow {
+      box-shadow: 0 8px 0px rgba(0, 0, 0, 0.12);
+    }
+    .custom-shadow-sm {
+      box-shadow: 0 4px 0px rgba(0, 0, 0, 0.12);
+    }
+    .custom-btn-press:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0px rgba(0, 0, 0, 0.15);
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.18); opacity: 0.25; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulsing-wave {
+      animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F3EBDD;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D8CCA3;
+      border-radius: 999px;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-certificate-area, #print-certificate-area * {
+        visibility: visible;
+      }
+      #print-certificate-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body class="text-brand-navy min-h-screen flex flex-col selection:bg-brand-yellow selection:text-brand-navy">
+
+  <header class="bg-white border-b-4 border-amber-200/80 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- School / Site Title -->
+      <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 bg-brand-yellow rounded-2xl flex items-center justify-center text-white text-2xl shadow-inner border-2 border-amber-300 shrink-0">
+          🦜
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-amber-300">國小校本課程</span>
+            <span class="text-xs text-stone-500 font-medium">每週一句自主發音檢測站</span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-black font-maru text-brand-navy tracking-tight">臺灣台語・每週一句闖關台</h1>
+        </div>
+      </div>
+
+      <!-- Action items: Stamp collection modal & sound toggle -->
+      <div class="flex items-center gap-2">
+        <button id="btn-stamps" class="flex items-center gap-2 px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border-2 border-amber-300 rounded-2xl font-bold text-sm transition custom-btn-press custom-shadow-sm">
+          <i class="fa-solid fa-stamp text-brand-orange text-base"></i>
+          <span>闖關集章簿</span>
+          <span id="stamp-badge-count" class="bg-brand-orange text-white text-xs px-2.5 py-0.5 rounded-full font-black">0</span>
+        </button>
+        <button id="btn-sound-mode" class="flex items-center gap-1.5 px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 border-2 border-stone-300 rounded-2xl font-bold text-sm transition custom-btn-press" title="切換提示音效">
+          <i id="sound-icon" class="fa-solid fa-volume-high text-brand-darkgreen"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Student Profile Input Strip -->
+    <div class="bg-amber-50/60 border-t border-b border-amber-200/70 px-4 py-2.5">
+      <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3 text-sm">
+        <div class="flex items-center gap-2 text-stone-700 font-bold shrink-0">
+          <i class="fa-solid fa-id-card text-brand-orange text-base"></i>
+          <span>學生登錄：</span>
+          <span id="display-student-grade" class="bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-lg text-xs font-black">3年級</span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 flex-1 justify-end">
+          <div class="flex items-center gap-1.5">
+            <label for="input-class" class="text-xs font-bold text-stone-600">班級</label>
+            <input type="text" id="input-class" placeholder="例：3" class="w-16 sm:w-20 px-2.5 py-1 text-xs sm:text-sm bg-white border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 font-bold text-center">
+            <span class="text-xs text-stone-500 font-bold">班</span>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <label for="input-seat" class="text-xs font-bold text-stone-600">座號</label>
+            <input type="number" id="input-seat" min="1" max="50" placeholder="例：15" class="w-16 sm:w-20 px-2.5 py-1 text-xs sm:text-sm bg-white border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 font-bold text-center">
+            <span class="text-xs text-stone-500 font-bold">號</span>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <label for="input-name" class="text-xs font-bold text-stone-600">姓名</label>
+            <input type="text" id="input-name" placeholder="請輸入姓名" class="w-24 sm:w-32 px-2.5 py-1 text-xs sm:text-sm bg-white border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 font-bold">
+          </div>
+
+          <span id="student-save-indicator" class="text-xs text-green-700 bg-green-100 border border-green-300 px-2 py-0.5 rounded-lg font-bold hidden">
+            已存檔 ✓
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grade Selection Tabs -->
+    <div class="max-w-6xl mx-auto px-4 pt-2.5 pb-2">
+      <div class="flex items-center space-x-2 overflow-x-auto pb-1" id="grade-selector-container">
+        <!-- Grade buttons populated by JS -->
+      </div>
+      <div class="flex items-center gap-2 pt-1.5 overflow-x-auto" id="semester-selector-container">
+        <!-- Semester buttons populated by JS -->
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Left Column: Weekly Sentence Challenge Arena (8 cols on lg) -->
+    <div class="lg:col-span-8 flex flex-col space-y-6">
+      
+      <!-- Current Challenge Card -->
+      <div class="bg-white rounded-3xl border-4 border-amber-100 p-6 md:p-8 custom-shadow relative overflow-hidden transition-all duration-300">
+        
+        <!-- Dropdown & Week Navigation Toolbar -->
+        <div class="bg-amber-50/90 rounded-2xl p-3 border border-amber-200 mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <label for="phrase-select-dropdown" class="shrink-0 text-xs font-black text-amber-900 flex items-center gap-1">
+              <i class="fa-solid fa-list-check text-brand-orange"></i>
+              <span>週次題庫：</span>
+            </label>
+            <select id="phrase-select-dropdown" class="flex-1 bg-white border-2 border-amber-300 text-stone-800 text-sm font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-400 truncate shadow-sm cursor-pointer">
+              <!-- Populated dynamically by JS -->
+            </select>
+          </div>
+
+          <!-- Navigation buttons between weeks in this grade -->
+          <div class="flex items-center justify-end gap-1.5 shrink-0">
+            <button id="btn-prev-phrase" class="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 text-stone-700 font-bold text-xs border border-stone-300 transition flex items-center gap-1 disabled:opacity-30 disabled:pointer-events-none custom-btn-press">
+              <i class="fa-solid fa-chevron-left"></i>
+              <span>上一週</span>
+            </button>
+            <span id="phrase-page-indicator" class="text-xs font-black px-2 text-stone-700 bg-white/70 py-1 rounded-lg border border-amber-200">1 / 16</span>
+            <button id="btn-next-phrase" class="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 text-stone-700 font-bold text-xs border border-stone-300 transition flex items-center gap-1 disabled:opacity-30 disabled:pointer-events-none custom-btn-press">
+              <span>下一週</span>
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Badges Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div class="flex items-center gap-2">
+            <span id="card-week-badge" class="bg-brand-orange text-white text-sm font-black px-3.5 py-1 rounded-full shadow-sm">
+              第 1 週
+            </span>
+            <span id="card-category-tag" class="bg-teal-50 text-teal-800 text-xs font-bold px-3 py-1 rounded-full border border-teal-200">
+              歲時節令
+            </span>
+          </div>
+          <span id="phrase-select-summary" class="text-xs text-stone-500 font-bold">共 16 句</span>
+        </div>
+
+        <!-- Main Taiwanese Hanzi & Phonetics Display -->
+        <div class="my-6 text-center">
+          <!-- Taiwanese Hanzi -->
+          <div id="card-hanzi" class="text-3xl sm:text-5xl font-black font-maru text-brand-navy tracking-wide mb-3 leading-snug">
+            新年頭、舊年尾。
+          </div>
+          <!-- Tailo (Taiwanese Romanization System) -->
+          <div id="card-tailo" class="text-base sm:text-xl font-bold text-brand-purple tracking-normal mb-3 font-mono bg-purple-50 inline-block px-4 py-1.5 rounded-2xl border border-purple-200">
+            Sin-nî-thâu, kū-nî-bué.
+          </div>
+          <!-- Mandarin Translation & Context note -->
+          <div class="max-w-xl mx-auto bg-amber-50/80 rounded-2xl p-3.5 border border-amber-200 text-stone-700 text-sm md:text-base flex items-start sm:items-center justify-center gap-2.5">
+            <i class="fa-solid fa-lightbulb text-amber-500 mt-0.5 sm:mt-0 text-base"></i>
+            <span class="text-left sm:text-center">華語意涵：<strong id="card-mandarin">年初和年底是重要的日子，不能有吵鬧等不吉利的事情發生。</strong></span>
+          </div>
+        </div>
+
+        <!-- Model Audio Teacher Bar -->
+        <div class="bg-stone-50 rounded-2xl p-4 border-2 border-dashed border-stone-200 flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-lg shrink-0">
+              👩‍🏫
+            </div>
+            <div>
+              <p class="text-xs font-bold text-stone-500">示範發音老師</p>
+              <p class="text-sm font-bold text-stone-800">請仔細聽聲調高低與入聲促音喔！</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <!-- Normal Speed Listen -->
+            <button id="btn-play-demo" class="px-4 py-2 bg-brand-green hover:bg-brand-darkgreen text-white font-bold rounded-xl text-sm flex items-center gap-2 transition custom-btn-press custom-shadow-sm">
+              <i class="fa-solid fa-volume-high"></i>
+              <span>示範發音</span>
+            </button>
+            <!-- Slow Speed Listen (0.75x) -->
+            <button id="btn-play-slow" class="px-3 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition custom-btn-press" title="慢速示範（0.75倍速）">
+              <i class="fa-solid fa-person-walking"></i>
+              <span>慢速聽 (0.75x)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Student Challenge Mic Section -->
+        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 border-2 border-orange-200 text-center relative overflow-hidden">
+          
+          <!-- Background Audio Visualizer Canvas -->
+          <canvas id="mic-visualizer" class="w-full h-16 rounded-xl bg-white/70 mb-4 border border-orange-200/80 shadow-inner"></canvas>
+
+          <p id="rec-status-text" class="text-sm font-bold text-amber-900 mb-4">
+            先聽老師示範，再按下麥克風錄下你的台語吧！
+          </p>
+
+          <!-- Big Record Button -->
+          <div class="relative inline-flex items-center justify-center">
+            <!-- Pulse ripple effect when active -->
+            <div id="mic-pulse" class="hidden absolute w-28 h-28 rounded-full bg-brand-orange/30 pulsing-wave"></div>
+            
+            <button id="btn-toggle-mic" class="relative z-10 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-brand-orange to-amber-500 text-white text-2xl sm:text-3xl flex items-center justify-center shadow-lg hover:shadow-xl transition transform active:scale-95 border-4 border-white cursor-pointer">
+              <i id="mic-btn-icon" class="fa-solid fa-microphone"></i>
+            </button>
+          </div>
+
+          <div class="mt-4 flex items-center justify-center gap-4 text-xs text-stone-500 font-medium">
+            <span><i class="fa-solid fa-circle-check text-green-500 mr-1"></i>清晰大聲</span>
+            <span><i class="fa-solid fa-circle-check text-green-500 mr-1"></i>注意聲調</span>
+            <span><i class="fa-solid fa-circle-check text-green-500 mr-1"></i>發音自然</span>
+          </div>
+        </div>
+
+        <!-- Evaluation Results Box (Appears after student speaks) -->
+        <div id="result-container" class="mt-6 hidden transition-all duration-300">
+          <div class="bg-white rounded-2xl border-2 border-amber-200 p-5 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 pb-3">
+              <div class="flex items-center gap-2">
+                <span id="score-badge" class="text-3xl font-black text-brand-orange font-maru">95 分</span>
+                <span id="score-text" class="text-sm font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full border border-amber-300">
+                  足讚！發音真標準！
+                </span>
+              </div>
+              <div id="star-rating" class="text-amber-400 text-lg flex gap-1">
+                <!-- Stars rendered via JS -->
+              </div>
+            </div>
+
+            <!-- Detailed feedback: What student said vs Target -->
+            <div class="mt-4 space-y-3">
+              <div>
+                <span class="text-xs font-bold text-stone-400 uppercase tracking-wider block mb-1">AI 辨識到你說的：</span>
+                <div id="student-transcript" class="p-3 bg-stone-50 rounded-xl text-stone-800 font-bold border border-stone-200 text-base">
+                  「新年頭、舊年尾」
+                </div>
+              </div>
+
+              <!-- Word Breakdown Matcher -->
+              <div>
+                <span class="text-xs font-bold text-stone-400 uppercase tracking-wider block mb-1">字音檢閱診斷：</span>
+                <div id="syllable-feedback" class="flex flex-wrap gap-2">
+                  <!-- Badges rendered via JS -->
+                </div>
+              </div>
+
+              <!-- Teacher's Advice -->
+              <div class="bg-teal-50 rounded-xl p-3 border border-teal-200 text-xs sm:text-sm text-teal-900 flex items-start gap-2">
+                <i class="fa-solid fa-comment-dots text-brand-darkgreen mt-0.5"></i>
+                <div id="teacher-encouragement">
+                  發音非常清晰自然！你的聲調掌握得很好，可以按下一題繼續集點挑戰囉！
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Column: Grade Phrase Navigator & Tips (4 cols on lg) -->
+    <div class="lg:col-span-4 flex flex-col space-y-6">
+      
+      <!-- Phrases List in Current Grade -->
+      <div class="bg-white rounded-3xl border-4 border-amber-100 p-5 custom-shadow flex flex-col flex-1">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-stone-100">
+          <h2 class="font-black text-stone-800 font-maru text-lg flex items-center gap-2">
+            <i class="fa-solid fa-book-bookmark text-brand-orange"></i>
+            <span id="grade-title-label">三年級 每週一句題庫</span>
+          </h2>
+          <span id="grade-progress-label" class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">
+            已過關 0/16
+          </span>
+        </div>
+
+        <!-- Scrollable Phrase Items -->
+        <div class="space-y-2 overflow-y-auto max-h-[420px] pr-1" id="phrase-list-container">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Quick Pronunciation Tips for Kids -->
+      <div class="bg-white rounded-3xl border-4 border-teal-100 p-5 custom-shadow">
+        <h3 class="font-black text-teal-900 font-maru text-base flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-graduation-cap text-brand-green"></i>
+          <span>台語發音小撇步 (Tsuí-sian)</span>
+        </h3>
+        <ul class="text-xs sm:text-sm text-stone-600 space-y-2">
+          <li class="flex items-start gap-2">
+            <span class="w-5 h-5 rounded-full bg-teal-100 text-teal-800 font-black flex items-center justify-center text-xs shrink-0 mt-0.5">1</span>
+            <span><strong>聲調高低：</strong>台語有「七聲八調」，先聽老師慢速示範兩次再開口。</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="w-5 h-5 rounded-full bg-teal-100 text-teal-800 font-black flex items-center justify-center text-xs shrink-0 mt-0.5">2</span>
+            <span><strong>入聲促音：</strong>標有 -p, -t, -k, -h 的字要短促收音（如「食 tsia̍h」、「拍 phah」）。</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="w-5 h-5 rounded-full bg-teal-100 text-teal-800 font-black flex items-center justify-center text-xs shrink-0 mt-0.5">3</span>
+            <span><strong>麥克風靠近：</strong>發音請距離麥克風約一拳距離，清楚大聲，分數更高！</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Stamp Collection Modal -->
+  <div id="stamp-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
+    <div class="bg-white rounded-3xl border-4 border-amber-200 max-w-lg w-full p-6 custom-shadow relative animate-fade-in max-h-[90vh] overflow-y-auto">
+      <button id="btn-close-stamps" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center font-bold">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="text-center mb-5">
+        <div class="w-16 h-16 mx-auto bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-3xl mb-2">
+          💮
+        </div>
+        <h3 class="text-2xl font-black font-maru text-brand-navy">我的台語每週一句集章卡</h3>
+        <p class="text-xs text-stone-500 mt-1" id="stamp-modal-student-info">錄音後和老師比一比，自評兩顆星以上就能獲得榮譽徽章喔！</p>
+      </div>
+
+      <!-- Stamp Grid -->
+      <div id="stamps-grid" class="grid grid-cols-4 sm:grid-cols-4 gap-3 p-3 bg-amber-50/70 rounded-2xl border border-amber-200 min-h-[220px]">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="mt-5 flex items-center justify-between pt-4 border-t border-stone-200">
+        <button id="btn-reset-stamps" class="text-xs text-red-500 hover:underline font-bold">
+          <i class="fa-solid fa-rotate-left mr-1"></i>重新集章
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="btn-print-certificate" class="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl text-xs custom-btn-press">
+            <i class="fa-solid fa-print mr-1"></i>列印過關證明
+          </button>
+          <button id="btn-stamp-confirm" class="px-5 py-2 bg-brand-orange hover:bg-orange-600 text-white font-bold rounded-xl text-sm custom-btn-press custom-shadow-sm">
+            繼續挑戰！
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Print Certificate Container -->
+  <div id="print-certificate-area" class="hidden p-8 bg-white border-8 border-amber-300 text-center rounded-3xl m-4">
+    <h2 class="text-3xl font-black font-maru text-amber-900 mb-2">臺灣台語・每週一句闖關學習證明</h2>
+    <p class="text-lg text-stone-700 mb-6 font-bold" id="cert-student-name">學生：3年 1班 15號 王小明</p>
+    <div class="p-6 bg-amber-50 rounded-2xl border-2 border-amber-200 mb-6">
+      <p class="text-base text-stone-800 leading-relaxed font-bold" id="cert-content">
+        恭喜該同學於本學期積極參與「每週一句自主發音挑戰」，透過數位語音辨識認真習得本土語言生活俗諺，表現優異，特頒此證以資勉勵！
+      </p>
+    </div>
+    <div class="flex justify-between items-end px-12 text-sm text-stone-600 font-bold mt-12">
+      <div>檢測日期：<span id="cert-date">2026/09/29</span></div>
+      <div>指導教師簽章：__________________</div>
+    </div>
+  </div>
+
+  <!-- Custom Alert / Toast Box -->
+  <div id="toast-message" class="fixed bottom-6 right-6 z-50 bg-stone-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300">
+    <i id="toast-icon" class="fa-solid fa-circle-info text-amber-400 text-lg"></i>
+    <span id="toast-text" class="text-sm font-bold">提示訊息</span>
+  </div>
+
+  <script>
+    /*
+     * 學校三至六年級校本閩南語每週一句完整題庫
+     * 配合教育部臺灣台語推薦漢字、教育部臺羅拼音與詳細生活意涵
+     */
+/*
+     * 【新增下學期題目的方法】
+     * 在該年級的 phrases 陣列最後，照下面格式加一筆（記得前一筆結尾要有逗號）：
+     *   { id: "g3_s2_1", semester: 2, week: 1, hanzi: "漢字。", tailo: "Tâi-lô.", mandarin: "華語意涵。", category: "分類" }
+     * - semester: 2 代表下學期；沒有寫 semester 的題目一律是上學期
+     * - week 是該學期的第幾週，下學期從 1 開始
+     * - id 不可重複，對應的示範音檔為 audio/<id>.mp3，例如 audio/g3_s2_1.mp3
+     */
+    const GRADE_DATABASE = {
+      3: {
+        title: "三年級（生活俗諺與日常啟發）",
+        phrases: [
+          { id: "g3_1", week: 1, hanzi: "新年頭、舊年尾。", tailo: "Sin-nî-thâu, kū-nî-bué.", mandarin: "年初和年底是重要的日子，不能有吵鬧等不吉利的事情發生。", category: "歲時節令" },
+          { id: "g3_2", week: 2, hanzi: "五月五，龍船鼓滿街路。", tailo: "Gōo-gue̍h-gōo, lîng-tsûn-kóo muá-ke-lōo.", mandarin: "指端午節到處都聽得到划龍舟的鼓聲。", category: "節慶習俗" },
+          { id: "g3_3", week: 3, hanzi: "會曉算，袂曉除。", tailo: "Ē-hiáu sǹg, bē-hiáu tû.", mandarin: "用來說人只看到表面的情況，沒有考慮到背後隱藏的玄機。", category: "處世智慧" },
+          { id: "g3_4", week: 4, hanzi: "時到花就開。", tailo: "Sî kàu hue tiō khui.", mandarin: "很多事不需強求，時候到了，自然會看到效果。", category: "順其自然" },
+          { id: "g3_5", week: 5, hanzi: "甜粿過年，發粿發錢，包仔包金，菜頭粿食點心。", tailo: "Tinn-kué kuè-nî, huat-kué huat-tsînn, bâu-á pau-kim, tshài-thâu-kué tsia̍h tiám-sim.", mandarin: "過年的各種年糕均為祈求吉祥之意：甜粿好過年、發粿發財、包仔包如黃金的蘿蔔絲、菜頭粿當點心。", category: "飲食文化" },
+          { id: "g3_6", week: 6, hanzi: "飽年飽節。", tailo: "Pá-nî-pá-tsiat.", mandarin: "指平常省吃儉用，只有過年過節才會稍微享受一番。", category: "勤儉節約" },
+          { id: "g3_7", week: 7, hanzi: "一日平安，一日福。", tailo: "Tsi̍t-ji̍t pîng-an, tsi̍t-ji̍t hok.", mandarin: "日子過得平平安安，就是人生最大的福氣。", category: "生活知足" },
+          { id: "g3_8", week: 8, hanzi: "十二月食菜頭，六月才轉嗽。", tailo: "Tsa̍p-jī-gue̍h tsia̍h tshài-thâu, la̍k-gue̍h tsiah tńg-sàu.", mandarin: "指事情經過許久才有反應，用來形容人反應遲鈍。", category: "趣味比喻" },
+          { id: "g3_9", week: 9, hanzi: "會跋才會大。", tailo: "Ē pua̍h tsiah ē tuā.", mandarin: "跌倒了才會長大。即不經一事，不長一智，勉勵從失敗中學習。", category: "成長勉勵" },
+          { id: "g3_10", week: 10, hanzi: "食碗內，看碗外。", tailo: "Tsia̍h uánn-lāi, khuànn uánn-guā.", mandarin: "形容人貪心不足，吃著自己碗裡的還覬覦別人碗裡的。", category: "品格警惕" },
+          { id: "g3_11", week: 11, hanzi: "雞喙圓圓，鴨喙扁扁。", tailo: "Ke-tshuì înn-înn, ah-tshuì pínn-pínn.", mandarin: "指開始時理直氣壯、強詞奪理，後來才理屈詞窮。形容態度先硬後軟。", category: "言語警惕" },
+          { id: "g3_12", week: 12, hanzi: "有好就有䆀。", tailo: "Ū hó tiō ū bái.", mandarin: "有好的地方就有壞的地方，指凡事有利就有弊。", category: "處世通達" },
+          { id: "g3_13", week: 13, hanzi: "心歹無人知，嘴歹上厲害。", tailo: "Sim pháinn bô-lâng tsai, tshuì pháinn siōng lī-hāi.", mandarin: "心壞別人看不出來，但說話尖酸刻薄最傷人。勸人講話愛細膩（說話要客氣謹慎）。", category: "修身口德" },
+          { id: "g3_14", week: 14, hanzi: "樹頭若企有在，毋驚樹尾做風颱。", tailo: "Tshiū-thâu nā khiā ū tsāi, m̄-kiann tshiū-bué tsò hong-thai.", mandarin: "事事項項照人情義理，立足穩固，就什麼都不怕。", category: "為人正直" },
+          { id: "g3_15", week: 15, hanzi: "細孔毋補，大孔艱苦。", tailo: "Sè-kháng m̄ póo, tuā-kháng kan-khóo.", mandarin: "勸人遇到小小缺失過錯，要趕緊改善改過，才不會惡化到無法彌補。", category: "防微杜漸" },
+          { id: "g3_16", week: 16, hanzi: "惜花連盆，疼囝連孫。", tailo: "Sioh hue liân phûn, thiànn kiánn liân sun.", mandarin: "愛花連花盆一起愛護，疼愛子女連帶疼愛孫子。比喻愛屋及烏。", category: "親情關懷" },
+          { "id": "g3_s2_1", "semester": 2, "week": 1, "hanzi": "大隻雞慢啼。", "tailo": "Tuā-tsiah ke bān thî.", "mandarin": "大器晚成。", "category": "成長勉勵" },
+          { "id": "g3_s2_2", "semester": 2, "week": 2, "hanzi": "會曉洗面，毋免偌濟水。", "tailo": "Ē-hiáu sé-bīn, m̄-bián guā-tsē tsuí.", "mandarin": "做事情如果知道方法，就可以輕鬆完成。", "category": "處世智慧" },
+          { "id": "g3_s2_3", "semester": 2, "week": 3, "hanzi": "掃地掃壁角，洗面洗耳空。", "tailo": "Sàu-tē sàu piah-kak, sé-bīn sé hīnn-khang.", "mandarin": "平常愈容易疏忽的部分，愈要注意。", "category": "儀容整潔" },
+          { "id": "g3_s2_4", "semester": 2, "week": 4, "hanzi": "輸人毋輸陣。", "tailo": "Su lâng m̄ su tīn.", "mandarin": "陣是團體的意思。雖然個人能力較弱，但是團體的氣勢不能被壓過。", "category": "自信勉勵" },
+          { "id": "g3_s2_5", "semester": 2, "week": 5, "hanzi": "一樣米飼百樣人。", "tailo": "Tsi̍t-iūnn bí tshī pah-iūnn lâng.", "mandarin": "形容在社會上，各式各樣的人都有。", "category": "世情觀察" },
+          { "id": "g3_s2_6", "semester": 2, "week": 6, "hanzi": "一下雷，天下響。", "tailo": "Tsi̍t-ē luî, thinn-hā hiáng.", "mandarin": "比喻突然做出驚人之舉，一下子就聞名天下。", "category": "立志向上" },
+          { "id": "g3_s2_7", "semester": 2, "week": 7, "hanzi": "憨狗逐飛鳥。", "tailo": "Gōng káu jiok pue-tsiáu.", "mandarin": "比喻做傻事。", "category": "慎思明辨" },
+          { "id": "g3_s2_8", "semester": 2, "week": 8, "hanzi": "食緊挵破碗。", "tailo": "Tsia̍h-kín lòng phuà uánn.", "mandarin": "比喻貪快反而達不到目的。", "category": "踏實力行" },
+          { "id": "g3_s2_9", "semester": 2, "week": 9, "hanzi": "食好鬥相報。", "tailo": "Tsia̍h-hó tàu-sio-pò.", "mandarin": "意味有福同享。", "category": "鄰里互助" },
+          { "id": "g3_s2_10", "semester": 2, "week": 10, "hanzi": "三日徙東，三日徙西。", "tailo": "Sann-jit suá tang, sann-jit suá sai.", "mandarin": "時常更換地方，居無定所。", "category": "生活觀察" },
+          { "id": "g3_s2_11", "semester": 2, "week": 11, "hanzi": "一分錢，一分貨。", "tailo": "Tsi̍t-hun tsînn, tsi̍t-hun huè.", "mandarin": "什麼樣的價格，就買到什麼樣品質的東西。", "category": "生活觀察" },
+          { "id": "g3_s2_12", "semester": 2, "week": 12, "hanzi": "看人食米粉咧喝燒。", "tailo": "Khuànn lâng tsia̍h bí-hún leh huah sio.", "mandarin": "形容窮操心，愛關心別人的閒事。", "category": "社交修養" },
+          { "id": "g3_s2_13", "semester": 2, "week": 13, "hanzi": "看一個影，生一個子。", "tailo": "Khuànn tsi̍t-ê iánn, senn tsi̍t-ê kiánn.", "mandarin": "捕風捉影之意。", "category": "慎思明辨" },
+          { "id": "g3_s2_14", "semester": 2, "week": 14, "hanzi": "一丈差九尺。", "tailo": "Tsi̍t-tn̄g tsha káu-tshioh.", "mandarin": "指做事不切實際，馬馬虎虎。", "category": "專業細心" },
+          { "id": "g3_s2_15", "semester": 2, "week": 15, "hanzi": "細漢偷挽匏，大漢偷牽牛。", "tailo": "Sè-hàn thau bán pû, tuā-hàn thau khan gû.", "mandarin": "小時候小錯不改，長大就可能犯下滔天大禍。", "category": "防微杜漸" },
+          { "id": "g3_s2_16", "semester": 2, "week": 16, "hanzi": "少年袂曉想，食老毋成樣。", "tailo": "Siàu-liân bē-hiáu siūnn, tsia̍h-lāu m̄ tsiânn-iūnn.", "mandarin": "就是少壯不努力，老大徒傷悲。", "category": "勤學勵志" }
+        ]
+      },
+      4: {
+        title: "四年級（人情世故與同儕處事）",
+        phrases: [
+          { id: "g4_1", week: 1, hanzi: "久長病，無孝子。", tailo: "Kú-tn̂g pīnn, bô hàu-tsú.", mandarin: "比喻長期臥病在床，照顧再周到的子女也容易心力交瘁。", category: "人倫省思" },
+          { id: "g4_2", week: 2, hanzi: "歹瓜厚子，歹人厚言語。", tailo: "Pháinn-kue kāu tsí, pháinn-lâng kāu giân-gí.", mandarin: "劣質的瓜瓤多種子，品行不端的人喜歡搬弄是非、興風作浪。", category: "明辨是非" },
+          { id: "g4_3", week: 3, hanzi: "好食，好睏，好放屎。", tailo: "Hó-tsia̍h, hó-khùn, hó-pàng-sái.", mandarin: "能吃、能睡、排便順暢。形容生活舒坦、身心健康無憂無慮。", category: "健康常樂" },
+          { id: "g4_4", week: 4, hanzi: "大格雞慢啼。", tailo: "Tuā-keh-ke bān thî.", mandarin: "體型大的雞比較晚啼叫。比喻大器晚成，不必因一時落後而自卑。", category: "自信勉勵" },
+          { id: "g4_5", week: 5, hanzi: "冬瓜好看毋好食。", tailo: "Tang-kue hó-khuànn m̄-hó tsia̍h.", mandarin: "冬瓜外表白白胖胖但生吃不入口。比喻人虛有其表、華而不實。", category: "內在修為" },
+          { id: "g4_6", week: 6, hanzi: "雞卵密密也有縫。", tailo: "Ke-nn̄g ba̍t-ba̍t iā ū phāng.", mandarin: "雞蛋再怎麼緊密包覆也有縫隙。比喻事情總會有破綻，不可能天衣無縫。", category: "生活觀察" },
+          { id: "g4_7", week: 7, hanzi: "三人共五目，日後無長短跤話。", tailo: "Sann-lâng kiōng gōo-ba̍k, ji̍t-āu bô tn̂g-té-kha uē.", mandarin: "當面講清楚、共同商定，事後就不能再反悔或嚼舌根。", category: "誠信立約" },
+          { id: "g4_8", week: 8, hanzi: "手抱孩兒，才知爸母時。", tailo: "Tshiú phō hâi-jî, tsiah tsai pē-bú sî.", mandarin: "指人往往要等到自己親手撫養孩子，才能體會當年父母養育的艱辛。", category: "孝親感恩" },
+          { id: "g4_9", week: 9, hanzi: "驚驚袂著等。", tailo: "Kiann-kiann bē tio̍h-tíng.", mandarin: "凡事瞻前顧後、畏首畏尾，必然坐失良機、無法拔得頭籌。", category: "勇敢果決" },
+          { id: "g4_10", week: 10, hanzi: "三更燈火，五更雞。", tailo: "Sann-kinn ting-hué, gōo-kinn ke.", mandarin: "半夜點燈苦讀，清晨雞啼便起。形容勤奮向學、晚睡早起。", category: "勤學勵志" },
+          { id: "g4_11", week: 11, hanzi: "圓人會扁，扁人會圓。", tailo: "Înn-lâng ē pínn, pínn-lâng ē înn.", mandarin: "圓臉會變瘦，瘦臉也會變圓。比喻世事無常，人的運勢有起有落。", category: "謙虛待人" },
+          { id: "g4_12", week: 12, hanzi: "十指伸出，無平長。", tailo: "Tsa̍p-tsái tshin-tshut, bô pênn-tn̂g.", mandarin: "勸誡為人子女者，父母對待子女若有不公或差異，要體諒包容、不要太計較。", category: "家庭和諧" },
+          { id: "g4_13", week: 13, hanzi: "起厝--ê 驚掠漏，醫生驚治嗽。", tailo: "Khí-tshù--ê kiann lia̍h-lāu, i-sing kiann tī sàu.", mandarin: "蓋房子師傅最怕抓漏水，醫生最怕治咳嗽。提醒人們處事要注意小細節。", category: "專業細心" },
+          { id: "g4_14", week: 14, hanzi: "一人煩惱一樣，無人煩惱相親像。", tailo: "Tsi̍t-lâng huân-ló tsi̍t-iūnn, bô-lâng huân-ló sann-tshin-tshiūnn.", mandarin: "每個人各有各的煩惱與難題，正所謂家家有本難唸的經。", category: "同理體諒" },
+          { id: "g4_15", week: 15, hanzi: "人牽毋行，鬼牽溜溜行。", tailo: "Lâng khan m̄-kiânn, kuí khan liu-liu kiânn.", mandarin: "好人牽引指導不肯走，跟著損友卻腳步飛快。形容人是非不分、誤入歧途。", category: "擇友警策" },
+          { id: "g4_16", week: 16, hanzi: "徛厝著好厝邊，作田著好田邊。", tailo: "Khiā-tshù tio̍h hó tshù-pinn, tsoh-tshân tio̍h hó tshân-pinn.", mandarin: "住家要有好鄰居，耕田要有好相鄰的農友。強調敦親睦鄰、守望相助。", category: "鄰里互助" },
+          { "id": "g4_s2_1", "semester": 2, "week": 1, "hanzi": "王梨頭，西瓜尾。", "tailo": "Ông-lâi thâu, si-kue bué.", "mandarin": "教導人家怎樣挑選水果及觀察蔬果的自然生態。", "category": "生活觀察" },
+          { "id": "g4_s2_2", "semester": 2, "week": 2, "hanzi": "徛厝著好厝邊，作田著好田邊。", "tailo": "Khiā-tshù tio̍h hó tshù-piann, tsò-tshân tio̍h hó tshân-pinn.", "mandarin": "比喻守望相助的重要。", "category": "鄰里互助" },
+          { "id": "g4_s2_3", "semester": 2, "week": 3, "hanzi": "少年拼出名，老惜名聲。", "tailo": "Siàu-liân piànn tshut-miâ, lāu sioh miâ-siann.", "mandarin": "年輕人拼著希望出名，老年人則是比較愛惜聲譽。", "category": "品格自重" },
+          { "id": "g4_s2_4", "semester": 2, "week": 4, "hanzi": "戲棚頂做甲流汗，戲棚跤嫌甲流瀾。", "tailo": "Hì-pênn-téng tsò kah lâu-kuānn, hì-pênn-kha hiâm kah lâu-nuā.", "mandarin": "比喻說的比做的容易。", "category": "踏實力行" },
+          { "id": "g4_s2_5", "semester": 2, "week": 5, "hanzi": "三日討海，四日曝網。", "tailo": "Sann-jit thó-hái, sì-jit phak-bāng.", "mandarin": "一曝十寒，勤有功，嬉無益。曝，曬。", "category": "專注恆心" },
+          { "id": "g4_s2_6", "semester": 2, "week": 6, "hanzi": "一代親，二代表，三代毋捌了了。", "tailo": "Tsi̍t-tāi tshin, nn̄g-tāi piáu, sann-tāi m̄-bat liáu-liáu.", "mandarin": "姻親間的往來，一代比一代疏遠。", "category": "家族親情" },
+          { "id": "g4_s2_7", "semester": 2, "week": 7, "hanzi": "好田地不如好子。", "tailo": "Hó tshân-tē put-jû hó kiánn.", "mandarin": "有萬貫家財，不如有優秀的下一代。", "category": "教育啟示" },
+          { "id": "g4_s2_8", "semester": 2, "week": 8, "hanzi": "愛媠毋驚流鼻水。", "tailo": "Ài-suí m̄ kiann lâu phīnn-tsuí.", "mandarin": "愛漂亮的人不怕感冒。比喻不按常規的人，是要付出一些代價的。", "category": "處世智慧" },
+          { "id": "g4_s2_9", "semester": 2, "week": 9, "hanzi": "一日剃頭，三日緣投。", "tailo": "Tsi̍t-jit thì-thâu, sann-jit iân-tâu.", "mandarin": "理髮後會使人看起來清爽有神，自己順眼，別人也會有好印象。", "category": "儀容整潔" },
+          { "id": "g4_s2_10", "semester": 2, "week": 10, "hanzi": "三跤貓，笑一目狗。", "tailo": "Sann-kha niau, tshiò tsi̍t-ba̍k káu.", "mandarin": "三腳貓笑獨眼狗。指若要取笑批評別人之前，應先看看自己是不是也有類似的缺點。", "category": "自省謙遜" },
+          { "id": "g4_s2_11", "semester": 2, "week": 11, "hanzi": "人咧做，天咧看。", "tailo": "Lâng teh tsò, thinn teh khuànn.", "mandarin": "比喻天理昭昭，報應不爽。", "category": "明辨是非" },
+          { "id": "g4_s2_12", "semester": 2, "week": 12, "hanzi": "歹瓜厚子，歹人厚言語。", "tailo": "Pháinn-kue kāu-tsí, pháinn-lâng kāu gân-gí.", "mandarin": "指心術不正的壞人，專門講好聽的話奉承人，或專門喜歡談論別人的是非，興風作浪。", "category": "言語警惕" },
+          { "id": "g4_s2_13", "semester": 2, "week": 13, "hanzi": "食家己的米，煩惱別人的代誌。", "tailo": "Tsia̍h ka-kī ê bí, huân-ló pa̍t-lâng ê tāi-tsì.", "mandarin": "指喜歡多管閒事或古道熱腸的人。", "category": "處世智慧" },
+          { "id": "g4_s2_14", "semester": 2, "week": 14, "hanzi": "加減趁，較袂散。", "tailo": "Ke-kiám thàn, khah bē suànn.", "mandarin": "與其閒著，不如多少做一點工作，賺一些錢花用。", "category": "勤儉節約" },
+          { "id": "g4_s2_15", "semester": 2, "week": 15, "hanzi": "袂使無大無細。", "tailo": "Bē-sái bô tuā bô sè.", "mandarin": "指對人要尊敬不能沒有禮貌。", "category": "社交修養" },
+          { "id": "g4_s2_16", "semester": 2, "week": 16, "hanzi": "關公面前弄大刀。", "tailo": "Kuan-kong bīn-tsiân lāng tuā-to.", "mandarin": "要保持謙虛學習的態度不要自以為是。", "category": "謙虛待人" }
+        ]
+      },
+      5: {
+        title: "五年級（生活哲理與品格修養）",
+        phrases: [
+          { id: "g5_1", week: 1, hanzi: "一人煩惱一樣，無人煩惱親像。", tailo: "Tsi̍t-lâng huân-ló tsi̍t-iūnn, bô-lâng huân-ló tshin-tshiūnn.", mandarin: "意謂家家有本難唸的經，不必盲目羨慕別人，多關照自己的生活。", category: "人生體悟" },
+          { id: "g5_2", week: 2, hanzi: "一暝全頭路，天光無半步。", tailo: "Tsi̍t-mî tsuân thâu-lōo, thinn-kng bô puànn-pōo.", mandarin: "整夜想了一堆宏圖大計，天亮了卻毫無行動。比喻光說不練、紙上談兵。", category: "踏實力行" },
+          { id: "g5_3", week: 3, hanzi: "一日徙栽，三日徛黃。", tailo: "Tsi̍t-ji̍t suá-tsai, sann-ji̍t khiā-n̂g.", mandarin: "樹苗剛移植需要時間扎根，太常換位會枯黃。做人要有定性，切莫見異思遷。", category: "專注恆心" },
+          { id: "g5_4", week: 4, hanzi: "人情留一線，日後好相看。", tailo: "Jîn-tsîng lâu tsi̍t-suànn, ji̍t-āu hó sann-khuànn.", mandarin: "處事留退路，說話留餘地。好來好去，日後相見才能保有和氣。", category: "待人寬厚" },
+          { id: "g5_5", week: 5, hanzi: "食魚食肉，也著菜kah。", tailo: "Tsia̍h hî tsia̍h bah, iā tio̍h tshài kah.", mandarin: "不能只吃魚吃肉，也要有青菜搭配。意謂事物要互相協調搭配，才能平衡。", category: "調和之道" },
+          { id: "g5_6", week: 6, hanzi: "一兼二顧，摸蜊仔 兼洗褲。", tailo: "It-kiam-jī-kòo, boo lâ-á kiam sé khòo.", mandarin: "順手摸蜆同時也洗了褲子。形容做一件事能同時收到兩項效益，一舉兩得。", category: "處事智慧" },
+          { id: "g5_7", week: 7, hanzi: "不三不四。", tailo: "Put-sam-put-sù.", mandarin: "形容不正經、不像樣、不成體統或不倫不類。", category: "品格自重" },
+          { id: "g5_8", week: 8, hanzi: "人兩跤，錢四跤。", tailo: "Lâng nn̄g-kha, tsînn sì-kha.", mandarin: "人只有兩隻腳，錢卻有四隻腳跑得快。形容謀生賺錢的辛苦不易，當知珍惜物力。", category: "理財珍惜" },
+          { id: "g5_9", week: 9, hanzi: "九月颱，無人知。", tailo: "Káu-gue̍h-thai, bô-lâng tsai.", mandarin: "農曆九月的秋颱難以預測。比喻天有不測風雲，人有旦夕禍福，凡事防患未然。", category: "居安思危" },
+          { id: "g5_10", week: 10, hanzi: "離鄉不離腔。", tailo: "Lî-hiong put lî khiang.", mandarin: "雖然離開故鄉在外打拚，卻始終保持故鄉的口音腔調。比喻不忘根源本心。", category: "鄉土情懷" },
+          { id: "g5_11", week: 11, hanzi: "飼囝無論飯，飼爸母算頓。", tailo: "Tshī kiánn bô-lūn pn̄g, tshī pē-bú sǹg tǹg.", mandarin: "養育兒女不計成本，照顧年邁父母卻斤斤計較。感嘆不孝之人的偏頗心態。", category: "孝道警惕" },
+          { id: "g5_12", week: 12, hanzi: "有一好，無兩好。", tailo: "Ū tsi̍t hó, bô nn̄g hó.", mandarin: "指事情很難盡善盡美，俗話說福無雙至，凡事應懂得知足與取捨。", category: "知足常樂" },
+          { id: "g5_13", week: 13, hanzi: "五肢指頭仔伸出來無平長。", tailo: "Gōo-ki tsíng-thâu-á tshin-tshut-lâi bô pênn-tn̂g.", mandarin: "五根手指伸出來各有所長短。指兄弟同儕的才能各有所異，應互相尊重包容。", category: "尊重個別" },
+          { id: "g5_14", week: 14, hanzi: "臭頭仔嘛會做皇帝，做總統你嘛有機會。", tailo: "Tshàu-thâu-á mā ē tsò hông-tè, tsò tsóng-thóng lí mā ū ki-huē.", mandarin: "英雄不怕出身低。只要肯努力奮鬥，每個人都有揚眉吐氣、出人頭地的機會。", category: "立志向上" },
+          { id: "g5_15", week: 15, hanzi: "一日剃頭，三日緣投。", tailo: "Tsi̍t-ji̍t thì-thâu, sann-ji̍t iân-tâu.", mandarin: "理髮後會使人看起來清爽有神，自己順眼，別人也會有好印象。", category: "儀容整潔" },
+          { id: "g5_16", week: 16, hanzi: "囡仔人有耳無喙。", tailo: "Gín-á-lâng ū hīnn bô tshuì.", mandarin: "告誡小孩子要多聽多觀察，不要隨便插嘴大人的談話，更不能隨意道人長短。", category: "口德教養" },
+          { "id": "g5_s2_1", "semester": 2, "week": 1, "hanzi": "歹瓜厚子，歹人厚言語。", "tailo": "Pháinn-kue kāu-tsí, pháinn-lâng kāu gân-gí.", "mandarin": "形容壞人喜歡談論別人的是非，並藉此興風作浪。", "category": "言語警惕" },
+          { "id": "g5_s2_2", "semester": 2, "week": 2, "hanzi": "加減趁，較袂散。", "tailo": "Ke-kiám thàn, khah bē suànn.", "mandarin": "與其閒著，不如多少做一點工作，賺一些錢花用。", "category": "勤儉節約" },
+          { "id": "g5_s2_3", "semester": 2, "week": 3, "hanzi": "會咬人的狗袂吠。", "tailo": "Ē kā lâng ê káu bē puī.", "mandarin": "比喻少言之人不易流露情緒，心機反而深。", "category": "處世智慧" },
+          { "id": "g5_s2_4", "semester": 2, "week": 4, "hanzi": "食緊挵破碗。", "tailo": "Tsia̍h-kín lòng phuà uánn.", "mandarin": "比喻欲速則不達。", "category": "踏實力行" },
+          { "id": "g5_s2_5", "semester": 2, "week": 5, "hanzi": "甘蔗無雙頭甜。", "tailo": "Kam-tsià bô siang-thâu tinn.", "mandarin": "指人世間的種種都有無法兩全其美的遺憾。", "category": "人生體悟" },
+          { "id": "g5_s2_6", "semester": 2, "week": 6, "hanzi": "台灣頭尾行透透。", "tailo": "Tâi-uân thâu-bué kiânn thàu-thàu.", "mandarin": "認識臺灣風景的美麗。", "category": "鄉土情懷" },
+          { "id": "g5_s2_7", "semester": 2, "week": 7, "hanzi": "愛拚才會贏。", "tailo": "Ài piànn tsiah ē iânn.", "mandarin": "比喻唯有努力奮鬥，才能戰勝環境挑戰，成就一番事業。", "category": "立志向上" },
+          { "id": "g5_s2_8", "semester": 2, "week": 8, "hanzi": "食米毋知米價。", "tailo": "Tsia̍h bí m̄-tsai bí-kè.", "mandarin": "形容只知享受，不知賺錢辛苦。", "category": "理財珍惜" },
+          { "id": "g5_s2_9", "semester": 2, "week": 9, "hanzi": "有喙講甲無瀾。", "tailo": "Ū tshuì kóng kah bô nuā.", "mandarin": "比喻費盡唇舌。", "category": "處世智慧" },
+          { "id": "g5_s2_10", "semester": 2, "week": 10, "hanzi": "好酒沉甕底。", "tailo": "Hó tsiú tîm àng-té.", "mandarin": "意指好戲在後頭。", "category": "人生體悟" },
+          { "id": "g5_s2_11", "semester": 2, "week": 11, "hanzi": "枵鬼假細膩。", "tailo": "Iau-kuí ké sè-jī.", "mandarin": "形容表裡不一、矯揉造作的人。", "category": "品格警惕" },
+          { "id": "g5_s2_12", "semester": 2, "week": 12, "hanzi": "教歹囡仔大細。", "tailo": "Kà pháinn gín-á tuā-sè.", "mandarin": "教壞了大大小小的孩子。", "category": "教育啟示" },
+          { "id": "g5_s2_13", "semester": 2, "week": 13, "hanzi": "衫著新，人著舊。", "tailo": "Sann tio̍h sin, lâng tio̍h kū.", "mandarin": "衣服是新的好，人的交情是越久越好。", "category": "人倫省思" },
+          { "id": "g5_s2_14", "semester": 2, "week": 14, "hanzi": "少年拼出名，老惜名聲。", "tailo": "Siàu-liân piànn tshut-miâ, lāu sioh miâ-siann.", "mandarin": "年輕人拼著希望出名，老年人則是比較愛惜聲譽。", "category": "品格自重" },
+          { "id": "g5_s2_15", "semester": 2, "week": 15, "hanzi": "未曾學行先學飛，未曾掖種想挽瓜。", "tailo": "Bē-tsing oh kiânn seng oh pue, bē-tsing ia̍h-tsìng siūnn bán kue.", "mandarin": "指學習是要一步步漸進的，絕無一步登天的道理。", "category": "踏實力行" },
+          { "id": "g5_s2_16", "semester": 2, "week": 16, "hanzi": "關公面前弄大刀。", "tailo": "Kuan-kong bīn-tsiân lāng tuā-to.", "mandarin": "不自量力。", "category": "自省謙遜" }
+        ]
+      },
+      6: {
+        title: "六年級（社會歷練與處事成熟）",
+        phrases: [
+          { id: "g6_1", week: 1, hanzi: "一錢，二緣，三媠，四少年。", tailo: "Tsi̍t tsînn, jī iân, sann suí, sì siàu-liân.", mandarin: "民間幽默諺語，列舉世俗談論對象時常考量的條件排序。", category: "世情觀察" },
+          { id: "g6_2", week: 2, hanzi: "好歹在心內，喙脣皮相款待。", tailo: "Hó-bái tsāi sim-lāi, tshuì-tûn-phuê sann khuán-thāi.", mandarin: "是非好壞自己心裡清楚，但表面上依然要保持禮貌，以禮相待。", category: "社交修養" },
+          { id: "g6_3", week: 3, hanzi: "在生一粒豆，較贏死了拜豬頭。", tailo: "Tsāi-senn tsi̍t-lia̍p tāu, khah-iânn sí--liáu pài ti-thâu.", mandarin: "父母在世時奉上一粒豆，勝過死後擺上大豬頭祭拜。提醒人行孝要及時。", category: "及時行孝" },
+          { id: "g6_4", week: 4, hanzi: "狗無嫌主人散。", tailo: "Káu bô hiâm tsú-lâng sàn.", mandarin: "狗忠於主人，絕不會因為主人貧窮而離去。說明忠誠可貴，反諷負心無義之人。", category: "忠誠感恩" },
+          { id: "g6_5", week: 5, hanzi: "理長不驚講，情理屬眾人。", tailo: "Lí tn̂g put kiann káng, tsîng-lí sio̍k tsìng-lâng.", mandarin: "只要站得住道理，就不怕公眾檢視討論。真理是屬於大家的，愈辯愈明。", category: "追求真理" },
+          { id: "g6_6", week: 6, hanzi: "一代親，二代表，三代毋捌了了。", tailo: "Tsi̍t-tāi tshin, jī-tāi piáu, sann-tāi m̄-bat liáu-liáu.", mandarin: "親屬往來一代傳一代容易逐漸生疏。勉勵親友要多聯絡關懷，維繫親情。", category: "家族親情" },
+          { id: "g6_7", week: 7, hanzi: "一犬吠影，百犬吠聲。", tailo: "It khián huī íng, pik khián huī siann.", mandarin: "一隻狗看到影子吠叫，群狗也盲目跟著叫。比喻毫無根據、人云亦云隨聲附和。", category: "獨立思考" },
+          { id: "g6_8", week: 8, hanzi: "大狗盤牆，細狗看樣。", tailo: "Tuā-káu puânn-tshiûnn, sè-káu khuànn-iūnn.", mandarin: "大狗翻牆走險，小狗就跟著學。比喻長輩上樑不正下樑歪，身教至關重要。", category: "身教示範" },
+          { id: "g6_9", week: 9, hanzi: "生雞卵無，放雞屎有。", tailo: "Senn ke-nn̄g bô, pàng ke-sái ū.", mandarin: "生雞蛋沒有份，拉雞屎卻一堆。形容人正事不會做，只會惹事生非增添麻煩。", category: "反省自勵" },
+          { id: "g6_10", week: 10, hanzi: "歹瓜厚子，歹人厚言語。", tailo: "Pháinn-kue kāu tsí, pháinn-lâng kāu giân-gí.", mandarin: "壞瓜多種子，品行惡劣的人最愛挑弄口舌、無事生非。", category: "慎思明辨" },
+          { id: "g6_11", week: 11, hanzi: "大紅花毋知䆀，圓仔花䆀毋知。", tailo: "Tuā-âng-hue m̄-tsai bái, înn-á-hue bái m̄-tsai.", mandarin: "譏諷人不知道自我檢討或不知自己缺點，反而盲目自誇炫耀。", category: "自省謙遜" },
+          { id: "g6_12", week: 12, hanzi: "會跋才會大。", tailo: "Ē pua̍h tsiah ē tuā.", mandarin: "不經跌倒長不大。比喻挫折是成長必經過程，鼓勵人在失敗中堅強站起。", category: "挫折容忍" },
+          { id: "g6_13", week: 13, hanzi: "欠錢怨債主，不孝怨爸母。", tailo: "Khiàm-tsînn uàn tsè-tsú, put-hàu uàn pē-bú.", mandarin: "欠錢怪債主上門，自己不孝順反而怪罪父母。比喻人不知自我反省，只會推諉卸責。", category: "責任自省" },
+          { id: "g6_14", week: 14, hanzi: "買賣算分，相請無論。", tailo: "Bé-bē sǹg hun, sann-tshiánn bô-lūn.", mandarin: "做生意買賣要分明算清楚，朋友互請宴客則講情誼不計較。公私界線要分明。", category: "公私分明" },
+          { id: "g6_15", week: 15, hanzi: "惹熊惹虎，毋通惹著刺查某。", tailo: "Jiá hîm jiá hóo, m̄-thang jiá-tio̍h tshì-tsa-bóo.", mandarin: "寧可招惹兇猛的熊虎，也不要得罪蠻橫剽悍的人。提醒為人言行切莫好勇鬥狠。", category: "處世避險" },
+          { id: "g6_16", week: 16, hanzi: "捷罵袂聽，捷拍袂疼。", tailo: "Tsia̍p mē bē thiann, tsia̍p phah bē thiànn.", mandarin: "老是責罵孩子聽不進去，頻繁體罰反而皮了不覺痛。說明打罵教育無益，溝通同理更有效。", category: "教育啟示" },
+          { "id": "g6_s2_1", "semester": 2, "week": 1, "hanzi": "四書五經讀透透，毋捌黿、鼇、龜、鱉、灶。", "tailo": "Sù-su ngóo-king tha̍k thàu-thàu, m̄-bat guân, gôo, ku, pih, tsàu.", "mandarin": "比喻學習無止境。", "category": "勤學勵志" },
+          { "id": "g6_s2_2", "semester": 2, "week": 2, "hanzi": "食番薯，無存本心。", "tailo": "Tsia̍h han-tsî, bô tshun pún-sim.", "mandarin": "吃人家賜予的番薯，卻不懂得心存感激之意。罵人忘恩負義。", "category": "忠誠感恩" },
+          { "id": "g6_s2_3", "semester": 2, "week": 3, "hanzi": "蕗蕎蔥，假大瓣。", "tailo": "Lōo-kiō tshang, ké tuā-pān.", "mandarin": "蕗蕎的鱗莖是同類植物中最小的，有人拿來冒充蔥蒜；意即罵人冒充上流人士，花錢慷慨大方。", "category": "品格警惕" },
+          { "id": "g6_s2_4", "semester": 2, "week": 4, "hanzi": "大榕樹，好蔭影。", "tailo": "Tuā tshîng-tshiū, hó ìm-iánn.", "mandarin": "榕樹的樹冠愈大，能提供蔭涼的面積也愈大；喻官宦或富貴人物是多數人欽羨及求助的對象。", "category": "世情觀察" },
+          { "id": "g6_s2_5", "semester": 2, "week": 5, "hanzi": "好田地不如好子。", "tailo": "Hó tshân-tē put-jû hó kiánn.", "mandarin": "有萬貫家財，不如有優秀的下一代。", "category": "教育啟示" },
+          { "id": "g6_s2_6", "semester": 2, "week": 6, "hanzi": "一代親，二代表，三代毋捌了了。", "tailo": "Tsi̍t-tāi tshin, nn̄g-tāi piáu, sann-tāi m̄-bat liáu-liáu.", "mandarin": "姻親間的往來，一代比一代疏遠。", "category": "家族親情" },
+          { "id": "g6_s2_7", "semester": 2, "week": 7, "hanzi": "拍虎掠賊親兄弟。", "tailo": "Phah hóo liah tsha̍t tshin hia-tī.", "mandarin": "比喻手足之情最為可靠，形容兄弟的情感珍貴可以共患難。", "category": "家庭和諧" },
+          { "id": "g6_s2_8", "semester": 2, "week": 8, "hanzi": "倖豬夯灶，倖囝不孝。", "tailo": "Sīnn ti gia̍h tsàu, sīnn kiánn put-hàu.", "mandarin": "比喻子女要加以管教，不能放縱，過於寵溺小孩子，會養出不肖子。", "category": "身教示範" },
+          { "id": "g6_s2_9", "semester": 2, "week": 9, "hanzi": "大碗閣滿墘。", "tailo": "Tuā-uánn koh muá-kînn.", "mandarin": "比喻物美價廉，有時也指人心不足，要得很多。", "category": "生活觀察" },
+          { "id": "g6_s2_10", "semester": 2, "week": 10, "hanzi": "輸人毋輸陣，輸陣歹看面。", "tailo": "Su lâng m̄ su tīn, su tīn pháinn khuànn-bīn.", "mandarin": "輸給某人無所謂，但在那麼多人中，若排在最後就很難看了。鼓勵人奮發向上，勿落人後。", "category": "立志向上" },
+          { "id": "g6_s2_11", "semester": 2, "week": 11, "hanzi": "少年拼出名，老惜名聲。", "tailo": "Siàu-liân piànn tshut-miâ, lāu sioh miâ-siann.", "mandarin": "年輕人拼著希望出名，老年人則是比較愛惜聲譽。", "category": "品格自重" },
+          { "id": "g6_s2_12", "semester": 2, "week": 12, "hanzi": "袂曉駛船嫌溪狹。", "tailo": "Bē-hiáu sái-tsûn hiâm khe èh.", "mandarin": "不會駕駛船隻卻嫌河面狹小。說明一個人不會自行反省，只會怪罪環境和別人不好。", "category": "反省自勵" },
+          { "id": "g6_s2_13", "semester": 2, "week": 13, "hanzi": "三日討海，四日曝網。", "tailo": "Sann-jit thó-hái, sì-jit phak-bāng.", "mandarin": "一曝十寒，勤有功，嬉無益。曝，曬。", "category": "專注恆心" },
+          { "id": "g6_s2_14", "semester": 2, "week": 14, "hanzi": "仙人拍鼓有時錯，跤步踏差啥人無？", "tailo": "Sian-jîn phah kóo ū-sî tshò, kha-pōo ta̍h-tsha siánn-lâng bô?", "mandarin": "形容神仙都會犯錯，何況是人？", "category": "自省謙遜" },
+          { "id": "g6_s2_15", "semester": 2, "week": 15, "hanzi": "三年一閏，好歹照輪。", "tailo": "Sann-nî tsi̍t lūn, hó-pháinn tsiàu lûn.", "mandarin": "指風水輪流轉。", "category": "世情觀察" }
+        ]
+      }
+    };
+
+    let currentGrade = 3;
+    let currentPhraseIndex = 0;
+
+    // 學期設定：題目有 semester: 2 就屬於下學期，沒有寫 semester 一律視為上學期
+    const SEMESTER_NAMES = { 1: '上學期', 2: '下學期' };
+    // 依日期預設學期：2～7 月且下學期已有題目時預設下學期，其餘為上學期
+    let currentSemester = (function () {
+      const m = new Date().getMonth() + 1;
+      const hasSem2 = Object.values(GRADE_DATABASE).some(g => g.phrases.some(p => p.semester === 2));
+      return (m >= 2 && m <= 7 && hasSem2) ? 2 : 1;
+    })();
+
+    function semesterOf(phrase) { return phrase.semester === 2 ? 2 : 1; }
+    function semesterWeek(phrase) { return phrase.week; }
+    function getVisiblePhrases(grade = currentGrade, sem = currentSemester) {
+      return GRADE_DATABASE[grade].phrases.filter(p => semesterOf(p) === sem);
+    }
+    let isRecording = false;
+    let audioContext = null;
+    let analyser = null;
+    let microphoneStream = null;
+    let animationFrameId = null;
+    let soundEnabled = true;
+
+    const STAMPS_STORAGE_KEY = 'taiwanese_weekly_stamps_v2';
+    const STUDENT_PROFILE_KEY = 'taiwanese_student_profile_v2';
+    let userStamps = {};
+    let studentProfile = {
+      classNum: '',
+      seatNum: '',
+      studentName: ''
+    };
+
+    try {
+      const savedStamps = localStorage.getItem(STAMPS_STORAGE_KEY);
+      if (savedStamps) {
+        userStamps = JSON.parse(savedStamps);
+      }
+      const savedProfile = localStorage.getItem(STUDENT_PROFILE_KEY);
+      if (savedProfile) {
+        studentProfile = JSON.parse(savedProfile);
+      }
+    } catch (e) {
+      console.warn("LocalStorage access failed:", e);
+    }
+
+    let synth = null;
+    let chimeSynth = null;
+
+    function initAudioFx() {
+      if (synth) return;
+      try {
+        synth = new Tone.PolySynth(Tone.Synth).toDestination();
+        synth.volume.value = -6;
+
+        chimeSynth = new Tone.MembraneSynth().toDestination();
+        chimeSynth.volume.value = -4;
+      } catch (err) {
+        console.warn("Tone.js init delayed until user interaction:", err);
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        initAudioFx();
+        if (Tone.context.state !== 'running') {
+          Tone.context.resume();
+        }
+
+        const now = Tone.now();
+        if (type === 'success') {
+          synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n", now);
+        } else if (type === 'good') {
+          synth.triggerAttackRelease(["G4", "C5"], "8n", now);
+        } else if (type === 'tryagain') {
+          synth.triggerAttackRelease(["D4", "F4"], "8n", now);
+        } else if (type === 'click') {
+          chimeSynth.triggerAttackRelease("C3", "16n", now);
+        } else if (type === 'mic-start') {
+          synth.triggerAttackRelease(["E5", "A5"], "16n", now);
+        } else if (type === 'mic-stop') {
+          synth.triggerAttackRelease(["A5", "E5"], "16n", now);
+        }
+      } catch (e) {}
+    }
+
+    function showToast(message, iconClass = "fa-circle-check text-green-400") {
+      const toast = document.getElementById('toast-message');
+      const text = document.getElementById('toast-text');
+      const icon = document.getElementById('toast-icon');
+
+      text.textContent = message;
+      icon.className = `fa-solid ${iconClass} text-lg`;
+
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+
+    function renderGradeTabs() {
+      const container = document.getElementById('grade-selector-container');
+      container.innerHTML = '';
+
+      [3, 4, 5, 6].forEach(grade => {
+        const btn = document.createElement('button');
+        const isActive = grade === currentGrade;
+        const totalInGrade = GRADE_DATABASE[grade].phrases.length;
+        
+        btn.className = `px-4 py-2 rounded-2xl font-black text-sm transition custom-btn-press whitespace-nowrap flex items-center gap-2 border-2 ${
+          isActive 
+            ? 'bg-brand-orange text-white border-orange-600 shadow-md' 
+            : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-200'
+        }`;
+        
+        btn.innerHTML = `
+          <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+            isActive ? 'bg-white text-brand-orange' : 'bg-stone-100 text-stone-600'
+          }">${grade}</span>
+          <span>${grade}年級</span>
+        `;
+
+        btn.addEventListener('click', () => {
+          if (currentGrade !== grade) {
+            playSound('click');
+            currentGrade = grade;
+            currentPhraseIndex = 0;
+            renderGradeTabs();
+            renderSemesterTabs();
+            updateStudentGradeDisplay();
+            renderPhraseDropdown();
+            loadCurrentPhrase();
+            renderPhraseList();
+          }
+        });
+
+        container.appendChild(btn);
+      });
+      updateStudentGradeDisplay();
+    }
+
+    function renderSemesterTabs() {
+      const container = document.getElementById('semester-selector-container');
+      if (!container) return;
+      container.innerHTML = '<span class="text-xs font-bold text-stone-500 shrink-0">學期</span>';
+
+      [1, 2].forEach(sem => {
+        const btn = document.createElement('button');
+        const isActive = sem === currentSemester;
+        const total = getVisiblePhrases(currentGrade, sem).length;
+        btn.className = `px-4 py-1.5 rounded-full font-black text-sm transition custom-btn-press whitespace-nowrap border-2 ${
+          isActive
+            ? 'bg-brand-green text-white border-brand-darkgreen shadow-md'
+            : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-200'
+        }`;
+        btn.textContent = total ? `${SEMESTER_NAMES[sem]}（${total}句）` : `${SEMESTER_NAMES[sem]}（準備中）`;
+
+        btn.addEventListener('click', () => {
+          if (currentSemester !== sem) {
+            playSound('click');
+            currentSemester = sem;
+            currentPhraseIndex = 0;
+            renderSemesterTabs();
+            renderPhraseDropdown();
+            loadCurrentPhrase();
+            renderPhraseList();
+          }
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    function updateStudentGradeDisplay() {
+      const gradeText = `${currentGrade}年級`;
+      const displayGradeEl = document.getElementById('display-student-grade');
+      if (displayGradeEl) {
+        displayGradeEl.textContent = gradeText;
+      }
+    }
+
+    function renderPhraseDropdown() {
+      const dropdown = document.getElementById('phrase-select-dropdown');
+      if (!dropdown) return;
+
+      const gradeData = GRADE_DATABASE[currentGrade];
+      dropdown.innerHTML = '';
+
+      getVisiblePhrases().forEach((phrase, idx) => {
+        const option = document.createElement('option');
+        option.value = idx;
+        const isPassed = !!userStamps[phrase.id];
+        const statusBadge = isPassed ? '✓已過關 ｜ ' : '';
+        option.textContent = `${statusBadge}第 ${semesterWeek(phrase)} 週：${phrase.hanzi}（${phrase.category}）`;
+        dropdown.appendChild(option);
+      });
+
+      if (!getVisiblePhrases().length) {
+        const option = document.createElement('option');
+        option.textContent = `（${SEMESTER_NAMES[currentSemester]}題庫準備中）`;
+        dropdown.appendChild(option);
+      }
+
+      dropdown.value = currentPhraseIndex;
+      const summaryEl = document.getElementById('phrase-select-summary');
+      if (summaryEl) {
+        summaryEl.textContent = `共 ${getVisiblePhrases().length} 句`;
+      }
+    }
+
+    function setEmptyState(isEmpty) {
+      document.getElementById('card-tailo').style.display = isEmpty ? 'none' : '';
+      ['btn-play-demo', 'btn-play-slow', 'btn-toggle-mic'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.toggle('opacity-40', isEmpty);
+        el.classList.toggle('pointer-events-none', isEmpty);
+      });
+    }
+
+    function loadCurrentPhrase() {
+      const gradeData = GRADE_DATABASE[currentGrade];
+      const phrase = getVisiblePhrases()[currentPhraseIndex];
+
+      setEmptyState(!phrase);
+      if (!phrase) {
+        const semName = SEMESTER_NAMES[currentSemester];
+        document.getElementById('card-week-badge').textContent = '尚無題目';
+        document.getElementById('card-category-tag').textContent = semName;
+        document.getElementById('phrase-page-indicator').textContent = '0 / 0';
+        document.getElementById('card-hanzi').textContent = `${semName}題庫準備中`;
+        document.getElementById('card-tailo').textContent = '';
+        document.getElementById('card-mandarin').textContent = '老師正在準備新的題目，先去複習其他學期的題目吧！';
+        document.getElementById('btn-prev-phrase').disabled = true;
+        document.getElementById('btn-next-phrase').disabled = true;
+        document.getElementById('result-container').classList.add('hidden');
+        updateSidebarActiveItem();
+        return;
+      }
+
+      const dropdown = document.getElementById('phrase-select-dropdown');
+      if (dropdown && dropdown.value !== String(currentPhraseIndex)) {
+        dropdown.value = currentPhraseIndex;
+      }
+
+      document.getElementById('card-week-badge').textContent = `第 ${semesterWeek(phrase)} 週`;
+      document.getElementById('card-category-tag').textContent = phrase.category;
+      document.getElementById('phrase-page-indicator').textContent = `${currentPhraseIndex + 1} / ${getVisiblePhrases().length}`;
+
+      document.getElementById('card-hanzi').textContent = phrase.hanzi;
+      document.getElementById('card-tailo').textContent = phrase.tailo;
+      document.getElementById('card-mandarin').textContent = phrase.mandarin;
+
+      document.getElementById('btn-prev-phrase').disabled = (currentPhraseIndex === 0);
+      document.getElementById('btn-next-phrase').disabled = (currentPhraseIndex === getVisiblePhrases().length - 1);
+
+      document.getElementById('result-container').classList.add('hidden');
+      document.getElementById('rec-status-text').innerHTML = '先聽老師示範，再按下麥克風錄下你的台語吧！';
+      document.getElementById('rec-status-text').className = 'text-sm font-bold text-amber-900 mb-4';
+
+      updateSidebarActiveItem();
+    }
+
+    function renderPhraseList() {
+      const gradeData = GRADE_DATABASE[currentGrade];
+      const listContainer = document.getElementById('phrase-list-container');
+      const titleLabel = document.getElementById('grade-title-label');
+      const progressLabel = document.getElementById('grade-progress-label');
+
+      titleLabel.textContent = `${currentGrade}年級 ${SEMESTER_NAMES[currentSemester]} 每週一句題庫`;
+
+      let passedCount = 0;
+      getVisiblePhrases().forEach(p => {
+        if (userStamps[p.id]) passedCount++;
+      });
+      progressLabel.textContent = `已過關 ${passedCount}/${getVisiblePhrases().length}`;
+
+      listContainer.innerHTML = '';
+      if (!getVisiblePhrases().length) {
+        listContainer.innerHTML = `<p class="text-sm text-stone-400 font-bold text-center py-8">${SEMESTER_NAMES[currentSemester]}題庫準備中<br>敬請期待！</p>`;
+      }
+      getVisiblePhrases().forEach((phrase, idx) => {
+        const item = document.createElement('div');
+        const isSelected = idx === currentPhraseIndex;
+        const isPassed = !!userStamps[phrase.id];
+
+        item.id = `phrase-item-${idx}`;
+        item.className = `p-3 rounded-2xl border-2 transition cursor-pointer flex items-center justify-between gap-2 ${
+          isSelected 
+            ? 'bg-amber-100/70 border-amber-400 text-stone-900 font-bold' 
+            : 'bg-white hover:bg-stone-50 border-stone-100 text-stone-700'
+        }`;
+
+        item.innerHTML = `
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <span class="w-6 h-6 rounded-lg text-xs font-black flex items-center justify-center shrink-0 ${
+              isPassed ? 'bg-green-100 text-green-700' : 'bg-stone-100 text-stone-500'
+            }">
+              ${isPassed ? '✓' : semesterWeek(phrase)}
+            </span>
+            <div class="truncate">
+              <p class="text-sm font-bold truncate">${phrase.hanzi}</p>
+              <p class="text-xs text-stone-400 font-mono truncate">${phrase.tailo}</p>
+            </div>
+          </div>
+          ${isPassed ? '<span class="text-amber-500 text-sm">💮</span>' : ''}
+        `;
+
+        item.addEventListener('click', () => {
+          if (currentPhraseIndex !== idx) {
+            playSound('click');
+            currentPhraseIndex = idx;
+            loadCurrentPhrase();
+          }
+        });
+
+        listContainer.appendChild(item);
+      });
+    }
+
+    function updateSidebarActiveItem() {
+      const gradeData = GRADE_DATABASE[currentGrade];
+      getVisiblePhrases().forEach((_, idx) => {
+        const el = document.getElementById(`phrase-item-${idx}`);
+        if (!el) return;
+        if (idx === currentPhraseIndex) {
+          el.className = 'p-3 rounded-2xl border-2 transition cursor-pointer flex items-center justify-between gap-2 bg-amber-100/70 border-amber-400 text-stone-900 font-bold';
+        } else {
+          el.className = 'p-3 rounded-2xl border-2 transition cursor-pointer flex items-center justify-between gap-2 bg-white hover:bg-stone-50 border-stone-100 text-stone-700';
+        }
+      });
+    }
+
+    // 示範發音：播放 audio/<id>.mp3（例如 audio/g3_1.mp3）
+    // 刻意不使用瀏覽器內建語音合成：它沒有台語語音，會用華語唸漢字，反而誤導學生
+    let currentAudio = null;
+
+    function playDemoAudio(phrase, rate = 1.0) {
+      if (currentAudio) currentAudio.pause();
+
+      const audio = new Audio(`audio/${phrase.id}.mp3`);
+      audio.playbackRate = rate;
+      audio.preservesPitch = true;
+      audio.mozPreservesPitch = true;
+      audio.webkitPreservesPitch = true;
+
+      audio.onplay = () =>
+        showToast(`正以${rate === 1 ? '正常' : '慢速'}播放示範...`, "fa-volume-high text-teal-400");
+      audio.onerror = () =>
+        showToast(`找不到示範音檔：audio/${phrase.id}.mp3`, "fa-triangle-exclamation text-yellow-400");
+
+      audio.play().catch(() => {});
+      currentAudio = audio;
+    }
+
+    function startAudioVisualizer(stream) {
+      const canvas = document.getElementById('mic-visualizer');
+      const ctx = canvas.getContext('2d');
+
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 64;
+      const source = audioContext.createMediaStreamSource(stream);
+      source.connect(analyser);
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function draw() {
+        if (!isRecording) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          return;
+        }
+
+        animationFrameId = requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(dataArray);
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 1.5;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const barHeight = (dataArray[i] / 255) * canvas.height;
+          ctx.fillStyle = `rgb(${255 - barHeight * 0.5}, ${140 + barHeight * 0.4}, 61)`;
+          ctx.beginPath();
+          ctx.roundRect(x, canvas.height - barHeight, barWidth - 2, barHeight, [4, 4, 0, 0]);
+          ctx.fill();
+          x += barWidth;
+        }
+      }
+
+      draw();
+    }
+
+    function stopAudioVisualizer() {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      const canvas = document.getElementById('mic-visualizer');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // ===== 錄音回聽與自評（取代語音辨識）=====
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let lastRecordingUrl = null;
+
+    function setMicUI(active) {
+      const btn = document.getElementById('btn-toggle-mic');
+      document.getElementById('mic-pulse').classList.toggle('hidden', !active);
+      btn.classList.toggle('from-red-500', active);
+      btn.classList.toggle('to-rose-600', active);
+      btn.classList.toggle('animate-pulse', active);
+      btn.classList.toggle('from-brand-orange', !active);
+      btn.classList.toggle('to-amber-500', !active);
+      document.getElementById('mic-btn-icon').className =
+        active ? 'fa-solid fa-stop text-white' : 'fa-solid fa-microphone text-white';
+      document.getElementById('rec-status-text').innerHTML = active
+        ? '<span class="text-brand-orange font-black">錄音中...</span> 大聲說出這句台語，說完再按一次！'
+        : '錄音完成！請回聽，和老師的示範比一比。';
+    }
+
+    async function toggleRecording() {
+      if (isRecording) { stopRecording(); return; }
+
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        showToast("此瀏覽器不支援錄音，請改用 Chrome 或 Safari 最新版", "fa-triangle-exclamation text-yellow-400");
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        microphoneStream = stream;
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
+          if (lastRecordingUrl) URL.revokeObjectURL(lastRecordingUrl);
+          lastRecordingUrl = URL.createObjectURL(blob);
+          showSelfEvalPanel(lastRecordingUrl);
+        };
+
+        isRecording = true;
+        playSound('mic-start');
+        startAudioVisualizer(stream);
+        mediaRecorder.start();
+        setMicUI(true);
+      } catch (err) {
+        isRecording = false;
+        showToast("無法使用麥克風，請確認已允許權限（需 HTTPS 或 localhost）", "fa-lock text-red-400");
+      }
+    }
+
+    function stopRecording() {
+      isRecording = false;
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+      if (microphoneStream) {
+        microphoneStream.getTracks().forEach(t => t.stop());
+        microphoneStream = null;
+      }
+      stopAudioVisualizer();
+      setMicUI(false);
+      playSound('mic-stop');
+    }
+
+    function showSelfEvalPanel(url) {
+      const phrase = getVisiblePhrases()[currentPhraseIndex];
+      const box = document.getElementById('result-container');
+      box.classList.remove('hidden');
+
+      box.innerHTML = `
+        <div class="bg-white rounded-2xl border-2 border-amber-200 p-5 shadow-sm space-y-4">
+          <div>
+            <p class="text-xs font-bold text-stone-400 mb-1">你的錄音</p>
+            <audio controls src="${url}" class="w-full"></audio>
+          </div>
+          <button id="btn-compare-demo" class="px-4 py-2 bg-brand-green hover:bg-brand-darkgreen text-white font-bold rounded-xl text-sm custom-btn-press custom-shadow-sm">
+            <i class="fa-solid fa-volume-high mr-1"></i>再聽一次老師示範
+          </button>
+          <div>
+            <p class="text-sm font-bold mb-2">和老師比一比，你覺得自己唸得如何？</p>
+            <div class="flex gap-2 flex-wrap">
+              <button data-stars="1" class="self-rate px-3 py-2 rounded-xl border-2 border-stone-300 bg-white font-bold text-sm custom-btn-press">⭐ 再練習</button>
+              <button data-stars="2" class="self-rate px-3 py-2 rounded-xl border-2 border-amber-300 bg-amber-50 font-bold text-sm custom-btn-press">⭐⭐ 不錯</button>
+              <button data-stars="3" class="self-rate px-3 py-2 rounded-xl border-2 border-orange-300 bg-orange-50 font-bold text-sm custom-btn-press">⭐⭐⭐ 很像老師</button>
+            </div>
+          </div>
+          <div id="self-eval-feedback" class="text-sm text-teal-900 bg-teal-50 border border-teal-200 rounded-xl p-3 hidden"></div>
+        </div>`;
+
+      document.getElementById('btn-compare-demo').addEventListener('click', () => {
+        playSound('click');
+        playDemoAudio(phrase, 1.0);
+      });
+
+      box.querySelectorAll('.self-rate').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const stars = Number(btn.dataset.stars);
+          const fb = document.getElementById('self-eval-feedback');
+          fb.classList.remove('hidden');
+          if (stars >= 2) {
+            playSound('success');
+            fb.textContent = '太棒了！你獲得一枚集章！';
+            recordStamp(phrase.id);
+          } else {
+            playSound('tryagain');
+            fb.textContent = '沒關係，先按「慢速聽」跟著唸幾次，再錄一次！';
+          }
+        });
+      });
+
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function recordStamp(phraseId) {
+      if (!userStamps[phraseId]) {
+        userStamps[phraseId] = {
+          date: new Date().toLocaleDateString('zh-TW'),
+          grade: currentGrade,
+          student: { ...studentProfile }
+        };
+        try {
+          localStorage.setItem(STAMPS_STORAGE_KEY, JSON.stringify(userStamps));
+        } catch (e) {
+          console.warn("Storage write failed", e);
+        }
+        updateStampBadge();
+        renderPhraseDropdown();
+        renderPhraseList();
+        showToast("自評達標，獲得 1 枚榮譽過關集章！", "fa-stamp text-amber-400");
+      }
+    }
+
+    function updateStampBadge() {
+      const badge = document.getElementById('stamp-badge-count');
+      const count = Object.keys(userStamps).length;
+      badge.textContent = count;
+    }
+
+    function openStampsModal() {
+      playSound('click');
+      const modal = document.getElementById('stamp-modal');
+      const grid = document.getElementById('stamps-grid');
+      const info = document.getElementById('stamp-modal-student-info');
+
+      const sName = studentProfile.studentName || '未填寫姓名';
+      const sClass = studentProfile.classNum ? `${studentProfile.classNum}班` : '';
+      const sSeat = studentProfile.seatNum ? `${studentProfile.seatNum}號` : '';
+      info.textContent = `學童：${currentGrade}年級 ${sClass} ${sSeat} ${sName} 的台語闖關紀錄`;
+
+      grid.innerHTML = '';
+
+      [1, 2].forEach(sem => {
+      const semList = getVisiblePhrases(currentGrade, sem);
+      const semPassed = semList.filter(p => !!userStamps[p.id]).length;
+      const head = document.createElement('div');
+      head.className = 'col-span-4 text-left text-sm font-black text-amber-900 mt-1';
+      head.textContent = semList.length ? `${SEMESTER_NAMES[sem]}　已過關 ${semPassed}/${semList.length}` : `${SEMESTER_NAMES[sem]}　題庫準備中`;
+      grid.appendChild(head);
+
+      semList.forEach((phrase) => {
+        const isStamped = !!userStamps[phrase.id];
+        const stampEl = document.createElement('div');
+        stampEl.className = `p-2.5 rounded-2xl border-2 flex flex-col items-center justify-center text-center transition ${
+          isStamped 
+            ? 'bg-amber-100/90 border-amber-400 text-amber-950 font-bold shadow-sm' 
+            : 'bg-stone-50 border-dashed border-stone-300 text-stone-400'
+        }`;
+
+        stampEl.innerHTML = `
+          <div class="text-2xl mb-1">${isStamped ? '💮' : '⚪'}</div>
+          <span class="text-xs font-black">第 ${semesterWeek(phrase)} 週</span>
+          <span class="text-[10px] truncate max-w-full font-medium ${isStamped ? 'text-amber-800' : 'text-stone-400'}">${phrase.hanzi.substring(0, 4)}...</span>
+        `;
+        grid.appendChild(stampEl);
+      });
+      });
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeStampsModal() {
+      playSound('click');
+      document.getElementById('stamp-modal').classList.add('hidden');
+    }
+
+    function initStudentProfile() {
+      const classInput = document.getElementById('input-class');
+      const seatInput = document.getElementById('input-seat');
+      const nameInput = document.getElementById('input-name');
+      const indicator = document.getElementById('student-save-indicator');
+
+      if (studentProfile.classNum) classInput.value = studentProfile.classNum;
+      if (studentProfile.seatNum) seatInput.value = studentProfile.seatNum;
+      if (studentProfile.studentName) nameInput.value = studentProfile.studentName;
+
+      function saveProfile() {
+        studentProfile.classNum = classInput.value.trim();
+        studentProfile.seatNum = seatInput.value.trim();
+        studentProfile.studentName = nameInput.value.trim();
+        try {
+          localStorage.setItem(STUDENT_PROFILE_KEY, JSON.stringify(studentProfile));
+        } catch (e) {}
+
+        if (indicator) {
+          indicator.classList.remove('hidden');
+          setTimeout(() => {
+            indicator.classList.add('hidden');
+          }, 2000);
+        }
+      }
+
+      classInput.addEventListener('input', saveProfile);
+      seatInput.addEventListener('input', saveProfile);
+      nameInput.addEventListener('input', saveProfile);
+    }
+
+    function printCertificate() {
+      playSound('click');
+      const name = studentProfile.studentName || '同學';
+      const cNum = studentProfile.classNum ? `${studentProfile.classNum}班 ` : '';
+      const sNum = studentProfile.seatNum ? `${studentProfile.seatNum}號 ` : '';
+      
+      const totalPassed = getVisiblePhrases().filter(p => !!userStamps[p.id]).length;
+      document.getElementById('cert-student-name').textContent = `學生：${currentGrade}年級 ${cNum}${sNum}${name}`;
+      document.getElementById('cert-content').textContent = 
+        `恭喜該同學於${SEMESTER_NAMES[currentSemester]}積極參與「每週一句自主發音挑戰」，已順利過關累積 ${totalPassed} 枚台語認證章，展現優異本土語言口語素養，特頒此狀以資勉勵！`;
+      document.getElementById('cert-date').textContent = new Date().toLocaleDateString('zh-TW');
+
+      const printArea = document.getElementById('print-certificate-area');
+      printArea.classList.remove('hidden');
+      window.print();
+      printArea.classList.add('hidden');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initStudentProfile();
+      renderGradeTabs();
+      renderSemesterTabs();
+      renderPhraseDropdown();
+      loadCurrentPhrase();
+      renderPhraseList();
+      updateStampBadge();
+
+      const phraseDropdown = document.getElementById('phrase-select-dropdown');
+      if (phraseDropdown) {
+        phraseDropdown.addEventListener('change', (e) => {
+          playSound('click');
+          currentPhraseIndex = parseInt(e.target.value, 10);
+          loadCurrentPhrase();
+        });
+      }
+
+      document.getElementById('btn-prev-phrase').addEventListener('click', () => {
+        if (currentPhraseIndex > 0) {
+          playSound('click');
+          currentPhraseIndex--;
+          loadCurrentPhrase();
+        }
+      });
+
+      document.getElementById('btn-next-phrase').addEventListener('click', () => {
+        const maxLen = getVisiblePhrases().length;
+        if (currentPhraseIndex < maxLen - 1) {
+          playSound('click');
+          currentPhraseIndex++;
+          loadCurrentPhrase();
+        }
+      });
+
+      document.getElementById('btn-play-demo').addEventListener('click', () => {
+        playSound('click');
+        playDemoAudio(getVisiblePhrases()[currentPhraseIndex], 1.0);
+      });
+
+      document.getElementById('btn-play-slow').addEventListener('click', () => {
+        playSound('click');
+        playDemoAudio(getVisiblePhrases()[currentPhraseIndex], 0.75);
+      });
+
+      document.getElementById('btn-toggle-mic').addEventListener('click', () => {
+        toggleRecording();
+      });
+
+      document.getElementById('btn-stamps').addEventListener('click', openStampsModal);
+      document.getElementById('btn-close-stamps').addEventListener('click', closeStampsModal);
+      document.getElementById('btn-stamp-confirm').addEventListener('click', closeStampsModal);
+      document.getElementById('btn-print-certificate').addEventListener('click', printCertificate);
+
+      document.getElementById('btn-reset-stamps').addEventListener('click', () => {
+        userStamps = {};
+        try {
+          localStorage.removeItem(STAMPS_STORAGE_KEY);
+        } catch (e) {}
+        updateStampBadge();
+        renderPhraseList();
+        renderPhraseDropdown();
+        openStampsModal();
+        showToast("集章紀錄已重置，準備好再次出發！", "fa-rotate-left text-amber-400");
+      });
+
+      document.getElementById('btn-sound-mode').addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        const icon = document.getElementById('sound-icon');
+        if (soundEnabled) {
+          icon.className = 'fa-solid fa-volume-high text-brand-darkgreen';
+          showToast("已開啟教學提示音效", "fa-bell text-green-400");
+        } else {
+          icon.className = 'fa-solid fa-volume-xmark text-stone-400';
+          showToast("已關閉教學提示音效", "fa-bell-slash text-stone-400");
+        }
+      });
+
+      const resizeCanvas = () => {
+        const canvas = document.getElementById('mic-visualizer');
+        if (canvas && canvas.parentElement) {
+          canvas.width = canvas.parentElement.clientWidth - 48;
+          canvas.height = 64;
+        }
+      };
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+    });
+  </script>
+</body>
+</html>
